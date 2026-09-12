@@ -1,0 +1,692 @@
+# Let's inspect the HTML provided by the user to see where it was cut off and fix any potential syntax errors in the whole script.
+# The user's input cut off right at:
+# function openTrackingSidebar(order) {
+#     closeAllSidebars();
+
+html_content = """<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOOPS CLUB | Premium Basketball Gear & Apparel</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,800;0,900;1,900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #0d0d0d;
+            --card-bg: #161616;
+            --accent-color: #ff3b00;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border-color: #222222;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+
+        /* --- HEADER --- */
+        header {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            background: rgba(13, 13, 13, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+        }
+
+        .logo { font-size: 24px; font-weight: 900; font-style: italic; letter-spacing: 2px; }
+        .logo span { color: var(--accent-color); }
+
+        .nav-links { display: flex; gap: 25px; }
+        .nav-links a { font-weight: 600; font-size: 14px; text-transform: uppercase; transition: color 0.3s; cursor: pointer; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent-color); }
+
+        .nav-icons { display: flex; gap: 20px; font-size: 18px; align-items: center; }
+        .nav-icons i { cursor: pointer; transition: color 0.3s; position: relative; }
+        .nav-icons i:hover { color: var(--accent-color); }
+        
+        .cart-badge {
+            position: absolute;
+            top: -8px; right: -10px;
+            background: var(--accent-color);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 5px;
+            border-radius: 50%;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 85vh;
+            margin-top: 76px;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(13,13,13,1)), url('https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1920&auto=format&fit=crop') no-repeat center center/cover;
+            display: flex; align-items: center;
+            padding: 0 80px;
+        }
+
+        .hero-content { max-width: 600px; }
+        .hero-subtitle { font-size: 14px; font-weight: 800; letter-spacing: 4px; color: var(--accent-color); text-transform: uppercase; margin-bottom: 15px; display: block; }
+        .hero-title { font-size: 56px; font-weight: 900; line-height: 1.1; text-transform: uppercase; font-style: italic; margin-bottom: 25px; }
+        .hero-desc { font-size: 16px; color: var(--text-muted); margin-bottom: 35px; line-height: 1.6; }
+
+        .btn {
+            display: inline-block; background-color: var(--text-main); color: var(--bg-color);
+            padding: 15px 35px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+            border: none; cursor: pointer; transition: 0.3s;
+        }
+        .btn:hover { background-color: var(--accent-color); color: var(--text-main); }
+
+        /* --- PRODUCTS & REVIEWS --- */
+        .products { max-width: 1400px; margin: 60px auto; padding: 0 40px; }
+        .section-title { font-size: 32px; font-weight: 900; text-transform: uppercase; font-style: italic; margin-bottom: 30px; }
+        
+        .product-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; }
+        .product-card {
+            background-color: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 4px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .product-img { height: 260px; width: 100%; background: #1f1f1f; overflow: hidden; position: relative; }
+        .product-img img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .product-card:hover .product-img img { transform: scale(1.05); }
+
+        .product-info { padding: 20px; }
+        .product-name { font-size: 16px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; }
+        .product-price { font-size: 18px; font-weight: 900; color: var(--accent-color); margin-bottom: 10px; }
+        
+        .rating-stars { color: #f39c12; font-size: 13px; margin-bottom: 10px; }
+        .rating-stars span { color: var(--text-muted); font-size: 12px; margin-left: 5px; }
+
+        .review-list {
+            max-height: 120px; overflow-y: auto; margin-bottom: 15px; border-top: 1px dashed var(--border-color); padding-top: 8px;
+        }
+        .review-item { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+        .review-item b { color: #fff; }
+
+        .btn-add-cart {
+            width: 100%; background: #222; color: #fff; padding: 12px; border: none;
+            font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.3s; margin-top: 5px;
+        }
+        .btn-add-cart:hover { background: var(--accent-color); }
+
+        .btn-review-trigger {
+            background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color);
+            width: 100%; padding: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; cursor: pointer; margin-top: 5px; transition: 0.3s;
+        }
+        .btn-review-trigger:hover { background: var(--accent-color); color: #fff; }
+
+        .overlay-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+            z-index: 2000; display: none;
+        }
+
+        .sidebar-panel {
+            position: fixed; top: 0; right: -450px; width: 450px; height: 100%;
+            background: var(--card-bg); border-left: 1px solid var(--border-color);
+            z-index: 2001; transition: right 0.4s ease; display: flex; flex-direction: column;
+            padding: 30px; overflow-y: auto;
+        }
+        .sidebar-panel.active { right: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 20px; }
+        .sidebar-header h3 { font-size: 20px; font-weight: 900; text-transform: uppercase; font-style: italic; }
+        .close-sidebar { font-size: 20px; cursor: pointer; color: var(--text-muted); }
+        .close-sidebar:hover { color: #fff; }
+
+        .cart-items { flex-grow: 1; overflow-y: auto; margin-bottom: 20px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        .cart-item img { width: 60px; height: 60px; object-fit: cover; }
+        .cart-item-details { flex-grow: 1; padding: 0 15px; }
+        .cart-item-title { font-size: 14px; font-weight: 700; text-transform: uppercase; }
+        .cart-item-price { font-size: 14px; color: var(--accent-color); font-weight: 800; margin-top: 5px; }
+
+        .checkout-section { border-top: 1px solid var(--border-color); padding-top: 20px; }
+        .bill-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; color: var(--text-muted); }
+        .bill-row.total { font-size: 18px; color: #fff; font-weight: 900; border-top: 1px dashed var(--border-color); padding-top: 10px; margin-top: 10px; }
+        .payment-methods { margin: 15px 0; }
+        .payment-methods label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+        #qr-box { display: none; background: #111; padding: 15px; text-align: center; border: 1px dashed var(--accent-color); margin-bottom: 15px; }
+        #qr-box img { width: 120px; height: 120px; margin-bottom: 10px; }
+
+        .tracking-container { margin: 20px 0; }
+        .progress-steps { display: flex; justify-content: space-between; position: relative; margin-top: 30px; }
+        .progress-steps::before { content: ''; position: absolute; top: 15px; left: 10%; width: 80%; height: 3px; background: #333; z-index: 1; }
+        .step-node { position: relative; z-index: 2; text-align: center; }
+        .step-circle { width: 35px; height: 35px; border-radius: 50%; background: #222; border: 2px solid #444; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; margin: 0 auto 8px; color: #777; }
+        .step-node.active .step-circle { background: var(--accent-color); border-color: var(--accent-color); color: #fff; }
+        .step-node.completed .step-circle { background: #28a745; border-color: #28a745; color: #fff; }
+        .step-label { font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }
+
+        .modal-box {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: var(--card-bg); border: 1px solid var(--border-color); padding: 30px;
+            width: 400px; z-index: 3000; display: none; border-radius: 6px;
+        }
+        .modal-box h3 { margin-bottom: 15px; font-size: 18px; font-weight: 800; text-transform: uppercase; }
+        .modal-box input, .modal-box select, .modal-box textarea {
+            width: 100%; background: #222; border: 1px solid var(--border-color); color: #fff; padding: 10px; margin-bottom: 12px; font-size: 13px;
+        }
+
+        footer {
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 60px 40px 20px;
+            margin-top: 80px;
+        }
+        .footer-container {
+            max-width: 1400px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; margin-bottom: 40px;
+        }
+        .footer-col h4 { font-size: 16px; font-weight: 800; text-transform: uppercase; margin-bottom: 20px; letter-spacing: 1px; }
+        .footer-col ul li { margin-bottom: 12px; }
+        .footer-col ul li a, .footer-col p { color: var(--text-muted); font-size: 13px; line-height: 1.6; }
+        .footer-col ul li a:hover { color: var(--text-main); }
+        .footer-social { display: flex; gap: 15px; font-size: 20px; margin-top: 15px; }
+        .footer-social a:hover { color: var(--accent-color); }
+        .footer-bottom {
+            max-width: 1400px; margin: 0 auto; border-top: 1px solid var(--border-color);
+            padding-top: 20px; display: flex; justify-content: space-between; color: var(--text-muted); font-size: 13px;
+        }
+
+        @media(max-width: 1024px) {
+            .product-grid { grid-template-columns: repeat(2, 1fr); }
+            .sidebar-panel { width: 100%; right: -100%; }
+            .footer-container { grid-template-columns: 1fr; gap: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="nav-container">
+            <a href="#" class="logo">HOOPS<span>CLUB</span></a>
+            <ul class="nav-links">
+                <li><a href="#" class="active" onclick="filterCategory('all', event)">Trang Chủ</a></li>
+                <li><a href="#" onclick="filterCategory('Giày Bóng Rổ', event)">Giày Bóng Rổ</a></li>
+                <li><a href="#" onclick="filterCategory('Trang Phục', event)">Trang Phục</a></li>
+                <li><a href="#" onclick="filterCategory('Phụ Kiện', event)">Phụ Kiện</a></li>
+                <li><a href="#" onclick="openHistorySidebar()">Lịch Sử Mua Hàng</a></li>
+            </ul>
+            <div class="nav-icons">
+                <i class="fa-solid fa-history" title="Lịch sử đơn hàng" onclick="openHistorySidebar()"></i>
+                <i class="fa-solid fa-cart-shopping" onclick="openCartSidebar()">
+                    <span class="cart-badge" id="cart-count">0</span>
+                </i>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-content">
+            <span class="hero-subtitle">Bộ Sưu Tập Mới 2026</span>
+            <h1 class="hero-title">Thống Trị Mọi Sân Đấu</h1>
+            <p class="hero-desc">Trang bị hiệu suất cao, giày signature đẳng cấp và trang phục chuyên dụng từ Hoops Club.</p>
+            <button class="btn" onclick="document.getElementById('shop-section').scrollIntoView({behavior: 'smooth'})">Khám Phá Ngay</button>
+        </div>
+    </section>
+
+    <!-- PRODUCTS SECTION -->
+    <section class="products" id="shop-section">
+        <h2 class="section-title" id="section-heading-title">Sản Phẩm & Đánh Giá Khách Hàng</h2>
+        <div class="product-grid" id="product-list"></div>
+    </section>
+
+    <!-- OVERLAY & SIDEBARS -->
+    <div class="overlay-bg" id="overlay" onclick="closeAllSidebars()"></div>
+
+    <!-- 1. GIỎ HÀNG & THANH TOÁN SIDEBAR -->
+    <div class="sidebar-panel" id="cart-sidebar">
+        <div class="sidebar-header">
+            <h3>Giỏ Hàng Của Bạn</h3>
+            <i class="fa-solid fa-xmark close-sidebar" onclick="closeAllSidebars()"></i>
+        </div>
+        <div class="cart-items" id="cart-items-container">
+            <p style="color: var(--text-muted); text-align: center; margin-top: 50px;">Giỏ hàng đang trống.</p>
+        </div>
+        
+        <div class="checkout-section" id="checkout-section" style="display: none;">
+            <div class="payment-methods">
+                <p style="font-weight: 800; font-size: 13px; text-transform: uppercase; margin-bottom: 10px;">Phương thức thanh toán:</p>
+                <label><input type="radio" name="payMethod" value="cash" checked onclick="toggleQR(false)"> Tiền mặt khi nhận hàng (COD)</label>
+                <label><input type="radio" name="payMethod" value="qr" onclick="toggleQR(true)"> Chuyển khoản QR Code (VietQR)</label>
+            </div>
+
+            <div id="qr-box">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=HOOPS_CLUB_PAYMENT_ORDER" alt="QR Code">
+                <p style="font-size: 11px; color: var(--text-muted);">Quét mã qua ứng dụng ngân hàng</p>
+            </div>
+
+            <div class="bill-row"><span>Tạm tính:</span> <span id="sub-total">0đ</span></div>
+            <div class="bill-row"><span>Phí vận chuyển:</span> <span id="ship-fee">30.000đ</span></div>
+            <div class="bill-row"><span>Thuế VAT (10%):</span> <span id="vat-fee">0đ</span></div>
+            <div class="bill-row total"><span>Tổng thanh toán:</span> <span id="final-total">0đ</span></div>
+            
+            <button class="btn" style="width: 100%; margin-top: 15px;" onclick="checkoutOrder()">Xác Nhận Đặt Hàng</button>
+        </div>
+    </div>
+
+    <!-- 2. THEO DÕI ĐƠN HÀNG (TRACKING PROGRESS) -->
+    <div class="sidebar-panel" id="tracking-sidebar">
+        <div class="sidebar-header">
+            <h3>Trạng Thái Đơn Hàng</h3>
+            <i class="fa-solid fa-xmark close-sidebar" onclick="closeAllSidebars()"></i>
+        </div>
+        <div style="text-align: center; margin-top: 20px;">
+            <p id="order-status-text" style="font-size: 16px; font-weight: 800; color: var(--accent-color);">Đơn hàng đang được đặt...</p>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">Mã đơn: #HC-<span id="order-id-display"></span></p>
+        </div>
+
+        <div class="tracking-container">
+            <div class="progress-steps">
+                <div class="step-node active" id="step-1">
+                    <div class="step-circle"><i class="fa-solid fa-check"></i></div>
+                    <div class="step-label">Đã đặt hàng</div>
+                </div>
+                <div class="step-node" id="step-2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Shipper Nhận</div>
+                </div>
+                <div class="step-node" id="step-3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Vận Chuyển</div>
+                </div>
+                <div class="step-node" id="step-4">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Đã Giao</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px; background: #111; padding: 15px; border-radius: 4px;">
+            <p style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">Chi tiết hóa đơn:</p>
+            <div id="tracking-bill-details" style="font-size: 12px; color: var(--text-muted); line-height: 1.6;"></div>
+        </div>
+        <button class="btn" style="width: 100%; margin-top: 20px;" onclick="openHistorySidebar()">Xem Lịch Sử Mua Hàng</button>
+    </div>
+
+    <!-- 3. LỊCH SỬ MUA HÀNG -->
+    <div class="sidebar-panel" id="history-sidebar">
+        <div class="sidebar-header">
+            <h3>Lịch Sử Mua Hàng</h3>
+            <i class="fa-solid fa-xmark close-sidebar" onclick="closeAllSidebars()"></i>
+        </div>
+        <div id="history-list-container" style="flex-grow: 1; overflow-y: auto;">
+            <p style="color: var(--text-muted); text-align: center; margin-top: 50px;">Chưa có đơn hàng nào.</p>
+        </div>
+    </div>
+
+    <!-- MODAL VIẾT ĐÁNH GIÁ -->
+    <div class="modal-box" id="review-modal">
+        <h3>Viết Đánh Giá Sản Phẩm</h3>
+        <p id="review-product-name" style="font-size: 13px; color: var(--accent-color); margin-bottom: 15px; font-weight: 700;"></p>
+        <input type="text" id="reviewer-name" placeholder="Tên của bạn...">
+        <select id="review-rating">
+            <option value="5">⭐⭐⭐⭐⭐ (5/5 - Tuyệt vời)</option>
+            <option value="4">⭐⭐⭐⭐ (4/5 - Rất tốt)</option>
+            <option value="3">⭐⭐⭐ (3/5 - Bình thường)</option>
+            <option value="2">⭐⭐ (2/5 - Tệ)</option>
+            <option value="1">⭐ (1/5 - Quá tệ)</option>
+        </select>
+        <textarea id="reviewer-comment" rows="3" placeholder="Cảm nhận của bạn về sản phẩm..."></textarea>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn" style="flex: 1; padding: 10px;" onclick="submitReview()">Gửi Đánh Giá</button>
+            <button class="btn" style="flex: 1; padding: 10px; background: #333; color: #fff;" onclick="closeReviewModal()">Hủy</button>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-col">
+                <h4>Hoops Club Store</h4>
+                <p><i class="fa-solid fa-location-dot" style="color: var(--accent-color);"></i> Địa chỉ: 123 Đường Nguyễn Văn Linh, Phường Tân Phú, Quận 7, TP. Hồ Chí Minh</p>
+                <p style="margin-top: 10px;"><i class="fa-solid fa-phone" style="color: var(--accent-color);"></i> SĐT Hotline: 0909 123 456</p>
+                <p style="margin-top: 10px;"><i class="fa-solid fa-envelope" style="color: var(--accent-color);"></i> Gmail: support@hoopsclub.vn</p>
+            </div>
+            <div class="footer-col">
+                <h4>Hỗ Trợ Khách Hàng</h4>
+                <ul>
+                    <li><a href="#" onclick="openHistorySidebar()">Tra cứu đơn hàng</a></li>
+                    <li><a href="#">Chính sách đổi trả 30 ngày</a></li>
+                    <li><a href="#">Hướng dẫn chọn size giày</a></li>
+                    <li><a href="#">Phương thức thanh toán</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Về Chúng Tôi</h4>
+                <ul>
+                    <li><a href="#">Câu chuyện thương hiệu</a></li>
+                    <li><a href="#">Hệ thống cửa hàng toàn quốc</a></li>
+                    <li><a href="#">Tuyển dụng nhân sự</a></li>
+                    <li><a href="#">Tin tức bóng rổ mới nhất</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Kết Nối Với Chúng Tôi</h4>
+                <p>Theo dõi các giải đấu và sản phẩm mới nhất trên mạng xã hội:</p>
+                <div class="footer-social">
+                    <a href="https://facebook.com" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="https://instagram.com" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://youtube.com" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="https://tiktok.com" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 HOOPS CLUB, Inc. Bảo lưu mọi quyền thương hiệu.</p>
+            <p>Chính sách bảo mật &bull; Điều khoản dịch vụ</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT HỆ THỐNG -->
+    <script>
+        let products = JSON.parse(localStorage.getItem('hoops_products')) || [
+            { id: 1, name: "Air Master Pro '26", category: "Giày Bóng Rổ", price: 4290000, img: "https://images.unsplash.com/photo-1556906781-9a412961c28c?q=80&w=600&auto=format&fit=crop", reviews: [{ name: "Minh Tuấn", rating: 5, comment: "Giày ôm chân, độ bám sân cực tốt!" }, { name: "Hoàng Nam", rating: 4, comment: "Êm chân, màu ngoài đẹp hơn ảnh." }] },
+            { id: 2, name: "Court Legacy Elite", category: "Giày Bóng Rổ", price: 3850000, img: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?q=80&w=600&auto=format&fit=crop", reviews: [{ name: "Quốc Bảo", rating: 5, comment: "Dòng signature đáng mua nhất năm." }] },
+            { id: 3, name: "Hoops Dry-Fit Jersey", category: "Trang Phục", price: 850000, img: "https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?q=80&w=600&auto=format&fit=crop", reviews: [{ name: "Thanh Huy", rating: 5, comment: "Vải thoáng khí, mặc đánh bóng không bị hầm mồ hôi." }] },
+            { id: 4, name: "Crossover Shorts", category: "Trang Phục", price: 650000, img: "https://images.unsplash.com/photo-1519766304817-4f37bda74a29?q=80&w=600&auto=format&fit=crop", reviews: [{ name: "Văn Đức", rating: 4, comment: "Quần nhẹ, co giãn tốt." }] },
+            { id: 5, name: "Pro Training Basketball", category: "Phụ Kiện", price: 1150000, img: "https://images.unsplash.com/photo-1519861531473-9200262188bf?q=80&w=600&auto=format&fit=crop", reviews: [{ name: "Gia Hân", rating: 5, comment: "Độ nảy chuẩn, cầm chắc tay." }] }
+        ];
+
+        let cart = [];
+        let orderHistory = JSON.parse(localStorage.getItem('hoops_history')) || [];
+        let currentReviewProductId = null;
+        let currentCategoryFilter = 'all';
+
+        function renderProducts() {
+            const grid = document.getElementById('product-list');
+            const filtered = currentCategoryFilter === 'all' ? products : products.filter(p => p.category === currentCategoryFilter);
+
+            grid.innerHTML = filtered.map(p => {
+                const avgRating = p.reviews.length > 0 ? (p.reviews.reduce((s, r) => s + r.rating, 0) / p.reviews.length).toFixed(1) : 5.0;
+                
+                return `
+                    <div class="product-card">
+                        <div class="product-img">
+                            <img src="${p.img}" alt="${p.name}">
+                        </div>
+                        <div class="product-info">
+                            <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">${p.category}</div>
+                            <div class="product-name">${p.name}</div>
+                            <div class="product-price">${p.price.toLocaleString()}đ</div>
+                            <div class="rating-stars">
+                                ${generateStars(avgRating)} <span>(${avgRating} / ${p.reviews.length} đánh giá)</span>
+                            </div>
+                            
+                            <div class="review-list">
+                                ${p.reviews.length === 0 ? '<div style="color:#555;">Chưa có đánh giá nào.</div>' : p.reviews.map(r => `
+                                    <div class="review-item"><b>${r.name}</b> (${r.rating}⭐): ${r.comment}</div>
+                                `).join('')}
+                            </div>
+
+                            <button class="btn-review-trigger" onclick="openReviewModal(${p.id})"><i class="fa-solid fa-pen"></i> Viết Đánh Giá</button>
+                            <button class="btn-add-cart" onclick="addToCart(${p.id})">Thêm Vào Giỏ</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterCategory(cat, event) {
+            if(event) {
+                document.querySelectorAll('.nav-links a').forEach(el => el.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+            currentCategoryFilter = cat;
+            document.getElementById('section-heading-title').innerText = cat === 'all' ? "Tất Cả Sản Phẩm & Đánh Giá" : cat;
+            renderProducts();
+        }
+
+        function generateStars(rating) {
+            let stars = '';
+            let floor = Math.floor(rating);
+            for (let i = 1; i <= 5; i++) {
+                if (i <= floor) stars += '<i class="fa-solid fa-star"></i>';
+                else stars += '<i class="fa-regular fa-star"></i>';
+            }
+            return stars;
+        }
+
+        function openReviewModal(id) {
+            currentReviewProductId = id;
+            const p = products.find(x => x.id === id);
+            document.getElementById('review-product-name').innerText = "Sản phẩm: " + p.name;
+            document.getElementById('reviewer-name').value = '';
+            document.getElementById('reviewer-comment').value = '';
+            document.getElementById('review-modal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function closeReviewModal() {
+            document.getElementById('review-modal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function submitReview() {
+            const name = document.getElementById('reviewer-name').value.trim();
+            const rating = parseInt(document.getElementById('review-rating').value);
+            const comment = document.getElementById('reviewer-comment').value.trim();
+
+            if (!name || !comment) {
+                alert("Vui lòng nhập đầy đủ tên và nội dung đánh giá!");
+                return;
+            }
+
+            const p = products.find(x => x.id === currentReviewProductId);
+            p.reviews.unshift({ name, rating, comment });
+            localStorage.setItem('hoops_products', JSON.stringify(products));
+
+            closeReviewModal();
+            renderProducts();
+            alert("Cảm ơn bạn đã gửi đánh giá sản phẩm!");
+        }
+
+        function addToCart(id) {
+            const prod = products.find(p => p.id === id);
+            const existing = cart.find(item => item.id === id);
+            if (existing) existing.quantity += 1;
+            else cart.push({ ...prod, quantity: 1 });
+            updateCartUI();
+            openCartSidebar();
+        }
+
+        function updateCartUI() {
+            const countElem = document.getElementById('cart-count');
+            const container = document.getElementById('cart-items-container');
+            const checkoutSec = document.getElementById('checkout-section');
+            
+            countElem.innerText = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+            if (cart.length === 0) {
+                container.innerHTML = `<p style="color: var(--text-muted); text-align: center; margin-top: 50px;">Giỏ hàng đang trống.</p>`;
+                checkoutSec.style.display = 'none';
+                return;
+            }
+
+            checkoutSec.style.display = 'block';
+            container.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <img src="${item.img}" alt="">
+                    <div class="cart-item-details">
+                        <div class="cart-item-title">${item.name}</div>
+                        <div class="cart-item-price">${item.price.toLocaleString()}đ x ${item.quantity}</div>
+                    </div>
+                    <i class="fa-solid fa-trash" style="color: #777; cursor: pointer;" onclick="removeFromCart(${item.id})"></i>
+                </div>
+            `).join('');
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const ship = 30000;
+            const vat = Math.round(subtotal * 0.1);
+            const final = subtotal + ship + vat;
+
+            document.getElementById('sub-total').innerText = subtotal.toLocaleString() + 'đ';
+            document.getElementById('ship-fee').innerText = ship.toLocaleString() + 'đ';
+            document.getElementById('vat-fee').innerText = vat.toLocaleString() + 'đ';
+            document.getElementById('final-total').innerText = final.toLocaleString() + 'đ';
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            updateCartUI();
+        }
+
+        function toggleQR(show) {
+            document.getElementById('qr-box').style.display = show ? 'block' : 'none';
+        }
+
+        function closeAllSidebars() {
+            document.getElementById('overlay').style.display = 'none';
+            document.querySelectorAll('.sidebar-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('review-modal').style.display = 'none';
+        }
+
+        function openCartSidebar() {
+            closeAllSidebars();
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('cart-sidebar').classList.add('active');
+        }
+
+        function checkoutOrder() {
+            if (cart.length === 0) return;
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const ship = 30000;
+            const vat = Math.round(subtotal * 0.1);
+            const final = subtotal + ship + vat;
+            const method = document.querySelector('input[name="payMethod"]:checked').value;
+
+            const newOrder = {
+                id: Math.floor(100000 + Math.random() * 900000),
+                date: new Date().toLocaleDateString('vi-VN'),
+                items: [...cart],
+                subtotal, ship, vat, final, method
+            };
+
+            orderHistory.unshift(newOrder);
+            localStorage.setItem('hoops_history', JSON.stringify(orderHistory));
+
+            cart = [];
+            updateCartUI();
+            openTrackingSidebar(newOrder);
+        }
+
+        function openTrackingSidebar(order) {
+            closeAllSidebars();
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('tracking-sidebar').classList.add('active');
+            
+            document.getElementById('order-id-display').innerText = order.id;
+            document.getElementById('tracking-bill-details').innerHTML = `
+                <b>Ngày đặt:</b> ${order.date}<br>
+                <b>Phương thức:</b> ${order.method === 'cash' ? 'Thanh toán COD' : 'Chuyển khoản QR Code'}<br>
+                <b>Tổng tiền:</b> <span style="color:var(--accent-color); font-weight:700;">${order.final.toLocaleString()}đ</span><br>
+                <b>Số lượng sản phẩm:</b> ${order.items.reduce((s, i) => s + i.quantity, 0)} món
+            `;
+            
+            resetSteps();
+            document.getElementById('step-1').classList.add('active');
+            
+            setTimeout(() => {
+                const s1 = document.getElementById('step-1');
+                const s2 = document.getElementById('step-2');
+                const statusText = document.getElementById('order-status-text');
+                if (s1 && s2 && statusText) {
+                    s1.classList.remove('active');
+                    s1.classList.add('completed');
+                    s2.classList.add('active');
+                    statusText.innerText = "Shipper đã nhận đơn hàng...";
+                }
+            }, 3000);
+
+            setTimeout(() => {
+                const s2 = document.getElementById('step-2');
+                const s3 = document.getElementById('step-3');
+                const statusText = document.getElementById('order-status-text');
+                if (s2 && s3 && statusText) {
+                    s2.classList.remove('active');
+                    s2.classList.add('completed');
+                    s3.classList.add('active');
+                    statusText.innerText = "Đơn hàng đang được vận chuyển...";
+                }
+            }, 6000);
+        }
+
+        function resetSteps() {
+            for(let i = 1; i <= 4; i++) {
+                const node = document.getElementById(`step-${i}`);
+                if (node) node.classList.remove('active', 'completed');
+            }
+            const statusText = document.getElementById('order-status-text');
+            if (statusText) statusText.innerText = "Đơn hàng đang được đặt...";
+        }
+
+        function openHistorySidebar() {
+            closeAllSidebars();
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('history-sidebar').classList.add('active');
+            
+            const container = document.getElementById('history-list-container');
+            if (orderHistory.length === 0) {
+                container.innerHTML = `<p style="color: var(--text-muted); text-align: center; margin-top: 50px;">Chưa có đơn hàng nào.</p>`;
+                return;
+            }
+
+            container.innerHTML = orderHistory.map(order => `
+                <div style="background: #111; border: 1px solid var(--border-color); padding: 15px; margin-bottom: 15px; border-radius: 4px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px;">
+                        <b style="color: var(--accent-color);">#HC-${order.id}</b>
+                        <span style="color: var(--text-muted);">${order.date}</span>
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+                        ${order.items.map(i => `${i.name} (x${i.quantity})`).join(', ')}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+                        <span style="font-size: 12px;">Tổng: <b style="color:#fff;">${order.final.toLocaleString()}đ</b></span>
+                        <button class="btn" style="padding: 5px 10px; font-size: 11px;" onclick='openTrackingSidebar(${JSON.stringify(order)})'>Xem Trạng Thái</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.onload = function() {
+            renderProducts();
+            updateCartUI();
+        };
+    </script>
+</body>
+</html>
+"""
+
+# Let's save this complete HTML to a file and make sure there are no issues.
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print("HTML file successfully verified and saved.")
